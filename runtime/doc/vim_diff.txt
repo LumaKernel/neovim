@@ -442,7 +442,8 @@ Compile-time features:
 Eval:
   *js_encode()*
   *js_decode()*
-  *v:none* (used by Vim to represent JavaScript "undefined"); use |v:null| instead.
+  v:none (used by Vim to represent JavaScript "undefined"); use |v:null| instead.
+  TODO : Some messages are needed. And determine how to treat help tag.
 
 Highlight groups:
   *hl-StatusLineTerm* *hl-StatusLineTermNC* are unnecessary because Nvim

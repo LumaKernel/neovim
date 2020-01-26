@@ -53,6 +53,7 @@
     .data.luaref = r })
 
 #define NIL ((Object) {.type = kObjectTypeNil})
+#define NONE ((Object) {.type = kObjectTypeNil})
 
 #define PUT(dict, k, v) \
   kv_push(dict, ((KeyValuePair) { .key = cstr_to_string(k), .value = v }))
