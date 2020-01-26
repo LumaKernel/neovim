@@ -1388,6 +1388,135 @@ Object copy_object(Object obj)
   }
 }
 
+// <<<<<<< HEAD
+// =======
+// /// Recursion helper for the `vim_to_object`. This uses a pointer table
+// /// to avoid infinite recursion due to cyclic references
+// ///
+// /// @param obj The source object
+// /// @param lookup Lookup table containing pointers to all processed objects
+// /// @return The converted value
+// static Object vim_to_object_rec(typval_T *obj, PMap(ptr_t) *lookup)
+// {
+//   Object rv = OBJECT_INIT;
+//
+//   if (obj->v_type == VAR_LIST || obj->v_type == VAR_DICT) {
+//     // Container object, add it to the lookup table
+//     if (pmap_has(ptr_t)(lookup, obj)) {
+//       // It's already present, meaning we alredy processed it so just return
+//       // nil instead.
+//       return rv;
+//     }
+//     pmap_put(ptr_t)(lookup, obj, NULL);
+//   }
+//
+//   switch (obj->v_type) {
+//     case VAR_SPECIAL:
+//       switch (obj->vval.v_special) {
+//         case kSpecialVarTrue:
+//         case kSpecialVarFalse: {
+//           rv.type = kObjectTypeBoolean;
+//           rv.data.boolean = (obj->vval.v_special == kSpecialVarTrue);
+//           break;
+//         }
+//         case kSpecialVarNull:
+//         case kSpecialVarNone: {
+//           rv.type = kObjectTypeNil;
+//           break;
+//         }
+//       }
+//       break;
+//
+//     case VAR_STRING:
+//       rv.type = kObjectTypeString;
+//       rv.data.string = cstr_to_string((char *) obj->vval.v_string);
+//       break;
+//
+//     case VAR_NUMBER:
+//       rv.type = kObjectTypeInteger;
+//       rv.data.integer = obj->vval.v_number;
+//       break;
+//
+//     case VAR_FLOAT:
+//       rv.type = kObjectTypeFloat;
+//       rv.data.floating = obj->vval.v_float;
+//       break;
+//
+//     case VAR_LIST:
+//       {
+//         list_T *list = obj->vval.v_list;
+//         listitem_T *item;
+//
+//         if (list != NULL) {
+//           rv.type = kObjectTypeArray;
+//           assert(list->lv_len >= 0);
+//           rv.data.array.size = (size_t)list->lv_len;
+//           rv.data.array.items = xmalloc(rv.data.array.size * sizeof(Object));
+//
+//           uint32_t i = 0;
+//           for (item = list->lv_first; item != NULL; item = item->li_next) {
+//             rv.data.array.items[i] = vim_to_object_rec(&item->li_tv, lookup);
+//             i++;
+//           }
+//         }
+//       }
+//       break;
+//
+//     case VAR_DICT:
+//       {
+//         dict_T *dict = obj->vval.v_dict;
+//         hashtab_T *ht;
+//         uint64_t todo;
+//         hashitem_T *hi;
+//         dictitem_T *di;
+//
+//         if (dict != NULL) {
+//           ht = &obj->vval.v_dict->dv_hashtab;
+//           todo = ht->ht_used;
+//           rv.type = kObjectTypeDictionary;
+//
+//           // Count items
+//           rv.data.dictionary.size = 0;
+//           for (hi = ht->ht_array; todo > 0; ++hi) {
+//             if (!HASHITEM_EMPTY(hi)) {
+//               todo--;
+//               rv.data.dictionary.size++;
+//             }
+//           }
+//
+//           rv.data.dictionary.items =
+//             xmalloc(rv.data.dictionary.size * sizeof(KeyValuePair));
+//           todo = ht->ht_used;
+//           uint32_t i = 0;
+//
+//           // Convert all
+//           for (hi = ht->ht_array; todo > 0; ++hi) {
+//             if (!HASHITEM_EMPTY(hi)) {
+//               di = dict_lookup(hi);
+//               // Convert key
+//               rv.data.dictionary.items[i].key =
+//                 cstr_to_string((char *) hi->hi_key);
+//               // Convert value
+//               rv.data.dictionary.items[i].value =
+//                 vim_to_object_rec(&di->di_tv, lookup);
+//               todo--;
+//               i++;
+//             }
+//           }
+//         }
+//       }
+//       break;
+//
+//     case VAR_UNKNOWN:
+//     case VAR_FUNC:
+//       break;
+//   }
+//
+//   return rv;
+// }
+//
+//
+// >>>>>>> parent of 6167ce6df... eval: Remove v:none
 static void set_option_value_for(char *key,
                                  int numval,
                                  char *stringval,

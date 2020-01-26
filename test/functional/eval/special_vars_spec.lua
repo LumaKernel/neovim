@@ -7,6 +7,7 @@ local eval = helpers.eval
 local eq = helpers.eq
 local meths = helpers.meths
 local NIL = helpers.NIL
+local none = helpers.none
 
 describe('Special values', function()
   before_each(clear)
@@ -28,15 +29,26 @@ describe('Special values', function()
     eq(0, funcs.empty(true))
     eq(1, funcs.empty(false))
     eq(1, funcs.empty(NIL))
+    eq(1, eval('empty(v:none)'))
   end)
 
   it('can be stringified and eval’ed back', function()
     eq(true, funcs.eval(funcs.string(true)))
     eq(false, funcs.eval(funcs.string(false)))
     eq(NIL, funcs.eval(funcs.string(NIL)))
+    eq(none, funcs.eval(funcs.string(none)))
+  end)
+
+  it('work with string() properly', function()
+    eq('v:null', funcs.string(eval('v:null')))
+    eq('v:none', funcs.string(eval('v:none')))
   end)
 
   it('work with is/isnot properly', function()
+    eq(1, eval('v:none is v:none'))
+    eq(0, eval('v:none is v:null'))
+    eq(0, eval('v:none is v:true'))
+    eq(0, eval('v:none is v:false'))
     eq(1, eval('v:null is v:null'))
     eq(0, eval('v:null is v:true'))
     eq(0, eval('v:null is v:false'))
@@ -44,26 +56,35 @@ describe('Special values', function()
     eq(0, eval('v:true is v:false'))
     eq(1, eval('v:false is v:false'))
 
+    eq(0, eval('v:none  is 0'))
     eq(0, eval('v:null  is 0'))
     eq(0, eval('v:true  is 0'))
     eq(0, eval('v:false is 0'))
 
+    eq(0, eval('v:none  is 1'))
     eq(0, eval('v:null  is 1'))
     eq(0, eval('v:true  is 1'))
     eq(0, eval('v:false is 1'))
 
+    eq(0, eval('v:none  is ""'))
     eq(0, eval('v:null  is ""'))
     eq(0, eval('v:true  is ""'))
     eq(0, eval('v:false is ""'))
 
+    eq(0, eval('v:none  is "none"'))
     eq(0, eval('v:null  is "null"'))
     eq(0, eval('v:true  is "true"'))
     eq(0, eval('v:false is "false"'))
 
+    eq(0, eval('v:none  is []'))
     eq(0, eval('v:null  is []'))
     eq(0, eval('v:true  is []'))
     eq(0, eval('v:false is []'))
 
+    eq(0, eval('v:none isnot v:none'))
+    eq(1, eval('v:none isnot v:null'))
+    eq(1, eval('v:none isnot v:true'))
+    eq(1, eval('v:none isnot v:false'))
     eq(0, eval('v:null isnot v:null'))
     eq(1, eval('v:null isnot v:true'))
     eq(1, eval('v:null isnot v:false'))
@@ -71,22 +92,27 @@ describe('Special values', function()
     eq(1, eval('v:true isnot v:false'))
     eq(0, eval('v:false isnot v:false'))
 
+    eq(1, eval('v:none  isnot 0'))
     eq(1, eval('v:null  isnot 0'))
     eq(1, eval('v:true  isnot 0'))
     eq(1, eval('v:false isnot 0'))
 
+    eq(1, eval('v:none  isnot 1'))
     eq(1, eval('v:null  isnot 1'))
     eq(1, eval('v:true  isnot 1'))
     eq(1, eval('v:false isnot 1'))
 
+    eq(1, eval('v:none  isnot ""'))
     eq(1, eval('v:null  isnot ""'))
     eq(1, eval('v:true  isnot ""'))
     eq(1, eval('v:false isnot ""'))
 
+    eq(1, eval('v:none  isnot "none"'))
     eq(1, eval('v:null  isnot "null"'))
     eq(1, eval('v:true  isnot "true"'))
     eq(1, eval('v:false isnot "false"'))
 
+    eq(1, eval('v:none  isnot []'))
     eq(1, eval('v:null  isnot []'))
     eq(1, eval('v:true  isnot []'))
     eq(1, eval('v:false isnot []'))
@@ -94,14 +120,17 @@ describe('Special values', function()
 
   it('work with +/-/* properly', function()
     eq(1, eval('0 + v:true'))
+    eq(0, eval('0 + v:none'))
     eq(0, eval('0 + v:null'))
     eq(0, eval('0 + v:false'))
 
     eq(-1, eval('0 - v:true'))
+    eq( 0, eval('0 - v:none'))
     eq( 0, eval('0 - v:null'))
     eq( 0, eval('0 - v:false'))
 
     eq(1, eval('1 * v:true'))
+    eq(0, eval('1 * v:none'))
     eq(0, eval('1 * v:null'))
     eq(0, eval('1 * v:false'))
   end)
@@ -110,22 +139,27 @@ describe('Special values', function()
     meths.set_var('true', true)
     meths.set_var('false', false)
     command('let null = v:null')
+    command('let none = v:none')
 
     eq('Vim(let):E734: Wrong variable type for +=', exc_exec('let true  += 1'))
     eq('Vim(let):E734: Wrong variable type for +=', exc_exec('let false += 1'))
+    eq('Vim(let):E734: Wrong variable type for +=', exc_exec('let none  += 1'))
     eq('Vim(let):E734: Wrong variable type for +=', exc_exec('let null  += 1'))
 
     eq('Vim(let):E734: Wrong variable type for -=', exc_exec('let true  -= 1'))
     eq('Vim(let):E734: Wrong variable type for -=', exc_exec('let false -= 1'))
+    eq('Vim(let):E734: Wrong variable type for -=', exc_exec('let none  -= 1'))
     eq('Vim(let):E734: Wrong variable type for -=', exc_exec('let null  -= 1'))
 
     eq('Vim(let):E734: Wrong variable type for .=', exc_exec('let true  .= 1'))
     eq('Vim(let):E734: Wrong variable type for .=', exc_exec('let false .= 1'))
+    eq('Vim(let):E734: Wrong variable type for .=', exc_exec('let none  .= 1'))
     eq('Vim(let):E734: Wrong variable type for .=', exc_exec('let null  .= 1'))
   end)
 
   it('work with . (concat) properly', function()
     eq("true", eval('"" . v:true'))
+    eq("none", eval('"" . v:none'))
     eq("null", eval('"" . v:null'))
     eq("false", eval('"" . v:false'))
   end)
@@ -134,21 +168,25 @@ describe('Special values', function()
     eq(6, funcs.type(true))
     eq(6, funcs.type(false))
     eq(7, funcs.type(NIL))
+    eq(7, funcs.type(none))
   end)
 
   it('work with copy() and deepcopy()', function()
     eq(true, funcs.deepcopy(true))
     eq(false, funcs.deepcopy(false))
     eq(NIL, funcs.deepcopy(NIL))
+    eq(none, funcs.deepcopy(none))
 
     eq(true, funcs.copy(true))
     eq(false, funcs.copy(false))
     eq(NIL, funcs.copy(NIL))
+    eq(none, funcs.copy(none))
   end)
 
   it('fails in index', function()
     eq('Vim(echo):E909: Cannot index a special variable', exc_exec('echo v:true[0]'))
     eq('Vim(echo):E909: Cannot index a special variable', exc_exec('echo v:false[0]'))
+    eq('Vim(echo):E909: Cannot index a special variable', exc_exec('echo v:none[0]'))
     eq('Vim(echo):E909: Cannot index a special variable', exc_exec('echo v:null[0]'))
   end)
 
@@ -156,16 +194,20 @@ describe('Special values', function()
     funcs.assert_false(false)
     funcs.assert_false(true)
     funcs.assert_false(NIL)
+    funcs.assert_false(none)
 
     funcs.assert_true(false)
     funcs.assert_true(true)
     funcs.assert_true(NIL)
+    funcs.assert_true(none)
 
     eq({
       'Expected False but got v:true',
       'Expected False but got v:null',
+      'Expected False but got v:none',
       'Expected True but got v:false',
       'Expected True but got v:null',
+      'Expected True but got v:none',
     }, meths.get_vvar('errors'))
   end)
 

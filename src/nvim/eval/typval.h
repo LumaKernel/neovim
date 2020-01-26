@@ -95,6 +95,7 @@ typedef struct dict_watcher {
 typedef enum {
   kSpecialVarFalse,  ///< v:false
   kSpecialVarTrue,   ///< v:true
+  kSpecialVarNone,   ///< v:none
   kSpecialVarNull,   ///< v:null
 } SpecialVarValue;
 
@@ -114,7 +115,7 @@ typedef enum {
   VAR_LIST,         ///< List, .v_list is used.
   VAR_DICT,         ///< Dictionary, .v_dict is used.
   VAR_FLOAT,        ///< Floating-point value, .v_float is used.
-  VAR_SPECIAL,      ///< Special value (true, false, null), .v_special
+  VAR_SPECIAL,      ///< Special value (true, false, null, none), .v_special
                     ///< is used.
   VAR_PARTIAL,      ///< Partial, .v_partial is used.
 } VarType;

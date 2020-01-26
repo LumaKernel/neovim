@@ -409,6 +409,7 @@ static struct vimvar {
   VV(VV_FALSE,          "false",            VAR_SPECIAL, VV_RO),
   VV(VV_TRUE,           "true",             VAR_SPECIAL, VV_RO),
   VV(VV_NULL,           "null",             VAR_SPECIAL, VV_RO),
+  VV(VV_NONE,           "none",             VAR_SPECIAL, VV_RO),
   VV(VV__NULL_LIST,     "_null_list",       VAR_LIST, VV_RO),
   VV(VV__NULL_DICT,     "_null_dict",       VAR_DICT, VV_RO),
   VV(VV_VIM_DID_ENTER,  "vim_did_enter",    VAR_NUMBER, VV_RO),
@@ -638,6 +639,7 @@ void eval_init(void)
 
   set_vim_var_special(VV_FALSE, kSpecialVarFalse);
   set_vim_var_special(VV_TRUE, kSpecialVarTrue);
+  set_vim_var_special(VV_NONE, kSpecialVarNone);
   set_vim_var_special(VV_NULL, kSpecialVarNull);
   set_vim_var_special(VV_EXITING, kSpecialVarNull);
 
@@ -18978,6 +18980,7 @@ static void f_type(typval_T *argvars, typval_T *rettv, FunPtr fptr)
           n = VAR_TYPE_BOOL;
           break;
         }
+        case kSpecialVarNone:
         case kSpecialVarNull: {
           n = 7;
           break;
@@ -20460,6 +20463,7 @@ void set_selfdict(typval_T *rettv, dict_T *selfdict)
         pt->pt_func = ret_pt->pt_func;
         func_ptr_ref(pt->pt_func);
       }
+// <<<<<<< HEAD
       if (ret_pt->pt_argc > 0) {
         size_t arg_size = sizeof(typval_T) * ret_pt->pt_argc;
         pt->pt_argv = (typval_T *)xmalloc(arg_size);
@@ -20467,6 +20471,12 @@ void set_selfdict(typval_T *rettv, dict_T *selfdict)
         for (i = 0; i < pt->pt_argc; i++) {
           tv_copy(&ret_pt->pt_argv[i], &pt->pt_argv[i]);
         }
+// =======
+//       case kSpecialVarFalse:
+//       case kSpecialVarNone:
+//       case kSpecialVarNull: {
+//         return 0;
+// >>>>>>> parent of 6167ce6df... eval: Remove v:none
       }
       partial_unref(ret_pt);
     }
