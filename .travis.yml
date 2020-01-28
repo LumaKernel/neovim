@@ -213,6 +213,7 @@ before_cache:   ci/before_cache.sh
 branches:
   only:
     - master
+    - my-dev
     - /^release-\d+\.\d+$/
 
 cache:
