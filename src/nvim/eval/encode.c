@@ -753,17 +753,13 @@ int encode_read_from_list(ListReaderState *const state, char *const buf,
 #define TYPVAL_ENCODE_CONV_NIL(tv) \
     ga_concat(gap, "v:null")
 
+#define TYPVAL_ENCODE_CONV_NONE_VAL(tv) \
+    ga_concat(gap, "v:none")
+
 #define TYPVAL_ENCODE_CONV_BOOL(tv, num) \
     ga_concat(gap, ((num)? "v:true": "v:false"))
 
-// <<<<<<< HEAD
 #define TYPVAL_ENCODE_CONV_UNSIGNED_NUMBER(tv, num)
-// =======
-// #define CONV_NONE_VAL() \
-//     ga_concat(gap, "v:none")
-//
-// #define CONV_UNSIGNED_NUMBER(num)
-// >>>>>>> parent of 6167ce6df... eval: Remove v:none
 
 #define TYPVAL_ENCODE_CONV_DICT_START(tv, dict, len) \
     ga_append(gap, '{')
@@ -884,6 +880,10 @@ int encode_read_from_list(ListReaderState *const state, char *const buf,
 #undef TYPVAL_ENCODE_CONV_NIL
 #define TYPVAL_ENCODE_CONV_NIL(tv) \
       ga_concat(gap, "null")
+
+#undef TYPVAL_ENCODE_CONV_NONE_VAL
+#define TYPVAL_ENCODE_CONV_NONE_VAL(tv) \
+      ga_concat(gap, "none")
 
 #undef TYPVAL_ENCODE_CONV_BOOL
 #define TYPVAL_ENCODE_CONV_BOOL(tv, num) \
@@ -1136,6 +1136,9 @@ bool encode_check_json_key(const typval_T *const tv)
 #undef TYPVAL_ENCODE_FIRST_ARG_TYPE
 #undef TYPVAL_ENCODE_FIRST_ARG_NAME
 
+#undef CONV_NONE_VAL
+#define CONV_NONE_VAL()
+
 #undef TYPVAL_ENCODE_CONV_STRING
 #undef TYPVAL_ENCODE_CONV_STR_STRING
 #undef TYPVAL_ENCODE_CONV_EXT_STRING
@@ -1150,6 +1153,7 @@ bool encode_check_json_key(const typval_T *const tv)
 #undef TYPVAL_ENCODE_CONV_REAL_LIST_AFTER_START
 #undef TYPVAL_ENCODE_CONV_EMPTY_DICT
 #undef TYPVAL_ENCODE_CONV_NIL
+#undef TYPVAL_ENCODE_CONV_NONE_VAL
 #undef TYPVAL_ENCODE_CONV_BOOL
 #undef TYPVAL_ENCODE_CONV_UNSIGNED_NUMBER
 #undef TYPVAL_ENCODE_CONV_DICT_START
@@ -1162,35 +1166,6 @@ bool encode_check_json_key(const typval_T *const tv)
 #undef TYPVAL_ENCODE_CONV_LIST_BETWEEN_ITEMS
 #undef TYPVAL_ENCODE_CONV_RECURSE
 #undef TYPVAL_ENCODE_ALLOW_SPECIALS
-// =======
-// #undef CONV_NONE_VAL
-// #define CONV_NONE_VAL()
-//
-// DEFINE_VIML_CONV_FUNCTIONS(static, json, garray_T *const, gap)
-//
-// #undef CONV_STRING
-// #undef CONV_STR_STRING
-// #undef CONV_EXT_STRING
-// #undef CONV_NUMBER
-// #undef CONV_FLOAT
-// #undef CONV_FUNC
-// #undef CONV_EMPTY_LIST
-// #undef CONV_LIST_START
-// #undef CONV_EMPTY_DICT
-// #undef CONV_NIL
-// #undef CONV_BOOL
-// #undef CONV_NONE_VAL
-// #undef CONV_UNSIGNED_NUMBER
-// #undef CONV_DICT_START
-// #undef CONV_DICT_END
-// #undef CONV_DICT_AFTER_KEY
-// #undef CONV_DICT_BETWEEN_ITEMS
-// #undef CONV_SPECIAL_DICT_KEY_CHECK
-// #undef CONV_LIST_END
-// #undef CONV_LIST_BETWEEN_ITEMS
-// #undef CONV_RECURSE
-// #undef CONV_ALLOW_SPECIAL
-// >>>>>>> parent of 6167ce6df... eval: Remove v:none
 
 /// Return a string with the string representation of a variable.
 /// Puts quotes around strings, so that they can be parsed back by eval().
@@ -1331,14 +1306,10 @@ char *encode_tv2json(typval_T *tv, size_t *len)
 #define TYPVAL_ENCODE_CONV_NIL(tv) \
     msgpack_pack_nil(packer)
 
-// <<<<<<< HEAD
-// =======
-// #define CONV_NONE_VAL() \
-//     return conv_error(_("E953: Attempt to convert v:none in %s, %s"), \
-//                       mpstack, objname)
-//
-// #define CONV_BOOL(num) \
-// >>>>>>> parent of 6167ce6df... eval: Remove v:none
+#define TYPVAL_ENCODE_CONV_NONE_VAL(tv) \
+    return conv_error(_("E953: Attempt to convert v:none in %s, %s"), \
+                      mpstack, objname)
+
 #define TYPVAL_ENCODE_CONV_BOOL(tv, num) \
     do { \
       if (num) { \
@@ -1400,6 +1371,7 @@ char *encode_tv2json(typval_T *tv, size_t *len)
 #undef TYPVAL_ENCODE_CONV_REAL_LIST_AFTER_START
 #undef TYPVAL_ENCODE_CONV_EMPTY_DICT
 #undef TYPVAL_ENCODE_CONV_NIL
+#undef TYPVAL_ENCODE_CONV_NONE_VAL
 #undef TYPVAL_ENCODE_CONV_BOOL
 #undef TYPVAL_ENCODE_CONV_UNSIGNED_NUMBER
 #undef TYPVAL_ENCODE_CONV_DICT_START
@@ -1412,31 +1384,3 @@ char *encode_tv2json(typval_T *tv, size_t *len)
 #undef TYPVAL_ENCODE_CONV_LIST_BETWEEN_ITEMS
 #undef TYPVAL_ENCODE_CONV_RECURSE
 #undef TYPVAL_ENCODE_ALLOW_SPECIALS
-// =======
-// #define CONV_ALLOW_SPECIAL true
-//
-// DEFINE_VIML_CONV_FUNCTIONS(, msgpack, msgpack_packer *const, packer)
-//
-// #undef CONV_STRING
-// #undef CONV_STR_STRING
-// #undef CONV_EXT_STRING
-// #undef CONV_NUMBER
-// #undef CONV_FLOAT
-// #undef CONV_FUNC
-// #undef CONV_EMPTY_LIST
-// #undef CONV_LIST_START
-// #undef CONV_EMPTY_DICT
-// #undef CONV_NIL
-// #undef CONV_BOOL
-// #undef CONV_NONE_VAL
-// #undef CONV_UNSIGNED_NUMBER
-// #undef CONV_DICT_START
-// #undef CONV_DICT_END
-// #undef CONV_DICT_AFTER_KEY
-// #undef CONV_DICT_BETWEEN_ITEMS
-// #undef CONV_SPECIAL_DICT_KEY_CHECK
-// #undef CONV_LIST_END
-// #undef CONV_LIST_BETWEEN_ITEMS
-// #undef CONV_RECURSE
-// #undef CONV_ALLOW_SPECIAL
-// >>>>>>> parent of 6167ce6df... eval: Remove v:none

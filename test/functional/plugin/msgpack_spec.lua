@@ -5,6 +5,7 @@ local eq, nvim_eval, nvim_command, exc_exec =
   helpers.eq, helpers.eval, helpers.command, helpers.exc_exec
 local ok = helpers.ok
 local NIL = helpers.NIL
+local none = helpers.none
 
 describe('autoload/msgpack.vim', function()
   before_each(function()
@@ -416,6 +417,7 @@ describe('autoload/msgpack.vim', function()
       string_eq('TRUE', 'v:true')
       string_eq('FALSE', 'v:false')
       string_eq('NIL', 'v:null')
+      string_eq('none', 'v:none')
     end)
   end)
 
