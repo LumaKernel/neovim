@@ -247,6 +247,7 @@ bool msgpack_rpc_to_object(const msgpack_object *const obj, Object *const arg)
             break;
           }
           case kObjectTypeNil:
+          case kObjectTypeNone:
           case kObjectTypeBoolean:
           case kObjectTypeInteger:
           case kObjectTypeFloat:
@@ -384,6 +385,7 @@ void msgpack_rpc_from_object(const Object result, msgpack_packer *const res)
                   "Buffer, window and tabpage enum items are in order");
     switch (cur.aobj->type) {
       case kObjectTypeNil:
+      case kObjectTypeNone:
       case kObjectTypeLuaRef: {
         // TODO(bfredl): could also be an error. Though kObjectTypeLuaRef
         // should only appear when the caller has opted in to handle references,

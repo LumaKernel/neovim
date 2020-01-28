@@ -9,6 +9,7 @@ local list_type = eval_helpers.list_type
 local dict_type = eval_helpers.dict_type
 local func_type = eval_helpers.func_type
 local nil_value = eval_helpers.nil_value
+local none_value = eval_helpers.none_value
 local int_type = eval_helpers.int_type
 local flt_type = eval_helpers.flt_type
 local type_key = eval_helpers.type_key
@@ -53,6 +54,9 @@ local function init_obj2lua_tab()
     end,
     [tonumber(api.kObjectTypeNil)] = function(_)
       return nil_value
+    end,
+    [tonumber(api.kObjectTypeNone)] = function(_)
+      return none_value
     end,
     [tonumber(api.kObjectTypeFloat)] = function(obj)
       return tonumber(obj.data.floating)
@@ -145,6 +149,8 @@ lua2obj = function(l)
     }})
   elseif l == nil or l == nil_value then
     return obj(api.kObjectTypeNil, {integer=0})
+  elseif l == none_value then
+    return obj(api.kObjectTypeNone, {integer=0})
   end
 end
 
@@ -156,6 +162,7 @@ return {
   flt_type=flt_type,
 
   nil_value=nil_value,
+  none_value=none_value,
 
   type_key=type_key,
 

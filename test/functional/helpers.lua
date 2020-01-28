@@ -25,7 +25,7 @@ local write_file = global_helpers.write_file
 
 local module = {
   NIL = mpack.NIL,
-  none = {},
+  none = { __tostring=function()return 'v:none';end },
   mkdir = lfs.mkdir,
 }
 

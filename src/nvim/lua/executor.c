@@ -324,6 +324,15 @@ static int nlua_state_init(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
   nlua_nil_ref = nlua_ref(lstate, -1);
   lua_setfield(lstate, -2, "NIL");
 
+  // vim.none
+  lua_newuserdata(lstate, 0);
+  lua_createtable(lstate, 0, 0);
+  lua_pushcfunction(lstate, &nlua_none_tostring);
+  lua_setfield(lstate, -2, "__tostring");
+  lua_setmetatable(lstate, -2);
+  nlua_none_ref = nlua_ref(lstate, -1);
+  lua_setfield(lstate, -2, "none");
+
   // vim._empty_dict_mt
   lua_createtable(lstate, 0, 0);
   lua_pushcfunction(lstate, &nlua_empty_dict_tostring);
@@ -669,6 +678,12 @@ check_err:
 static int nlua_nil_tostring(lua_State *lstate)
 {
   lua_pushstring(lstate, "vim.NIL");
+  return 1;
+}
+
+static int nlua_none_tostring(lua_State *lstate)
+{
+  lua_pushstring(lstate, "vim.none");
   return 1;
 }
 

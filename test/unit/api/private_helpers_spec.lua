@@ -12,6 +12,7 @@ local typvalt2lua = eval_helpers.typvalt2lua
 local typvalt = eval_helpers.typvalt
 
 local nil_value = api_helpers.nil_value
+local none_value = api_helpers.none_value
 local list_type = api_helpers.list_type
 local int_type = api_helpers.int_type
 local type_key = api_helpers.type_key
@@ -38,6 +39,7 @@ describe('vim_to_object', function()
   simple_test('converts true', true)
   simple_test('converts false', false)
   simple_test('converts nil', nil_value)
+  simple_test('converts none', none_value)
   simple_test('converts 1', 1)
   simple_test('converts -1.5', -1.5)
   simple_test('converts empty string', '')

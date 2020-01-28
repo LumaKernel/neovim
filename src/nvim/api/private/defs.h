@@ -98,6 +98,7 @@ typedef struct {
 
 typedef enum {
   kObjectTypeNil = 0,
+  kObjectTypeNone,
   kObjectTypeBoolean,
   kObjectTypeInteger,
   kObjectTypeFloat,

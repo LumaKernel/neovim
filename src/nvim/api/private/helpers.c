@@ -335,7 +335,7 @@ void set_option_to(uint64_t channel_id, void *to, int type,
     return;
   }
 
-  if (value.type == kObjectTypeNil) {
+  if (value.type == kObjectTypeNil || value.type == kObjectTypeNone) {
     if (type == SREQ_GLOBAL) {
       api_set_error(err, kErrorTypeException, "Cannot unset option '%s'",
                     name.data);
@@ -1078,6 +1078,11 @@ bool object_to_vim(Object obj, typval_T *tv, Error *err)
       tv->vval.v_special = kSpecialVarNull;
       break;
 
+    case kObjectTypeNone:
+      tv->v_type = VAR_SPECIAL;
+      tv->vval.v_special = kSpecialVarNone;
+      break;
+
     case kObjectTypeBoolean:
       tv->v_type = VAR_SPECIAL;
       tv->vval.v_special = obj.data.boolean? kSpecialVarTrue: kSpecialVarFalse;
@@ -1181,6 +1186,7 @@ void api_free_object(Object value)
 {
   switch (value.type) {
     case kObjectTypeNil:
+    case kObjectTypeNone:
     case kObjectTypeBoolean:
     case kObjectTypeInteger:
     case kObjectTypeFloat:
@@ -1373,6 +1379,7 @@ Object copy_object(Object obj)
     case kObjectTypeTabpage:
     case kObjectTypeWindow:
     case kObjectTypeNil:
+    case kObjectTypeNone:
     case kObjectTypeBoolean:
     case kObjectTypeInteger:
     case kObjectTypeFloat:

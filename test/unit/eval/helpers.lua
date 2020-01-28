@@ -21,6 +21,7 @@ local int_type = {[true]='int type'}
 local flt_type = {[true]='flt type'}
 
 local nil_value = {[true]='nil'}
+local none_value = {[true]='none'}
 
 local lua2typvalt
 
@@ -140,6 +141,7 @@ local function typvalt2lua_tab_init()
       return ({
         [tonumber(eval.kSpecialVarFalse)] = false,
         [tonumber(eval.kSpecialVarNull)] = nil_value,
+        [tonumber(eval.kSpecialVarNone)] = none_value,
         [tonumber(eval.kSpecialVarTrue)] = true,
       })[tonumber(t.vval.v_special)]
     end,
@@ -349,6 +351,7 @@ lua2typvalt = function(l, processed)
       [null_list] = {'VAR_LIST', {v_list=ffi.cast('list_T*', nil)}},
       [null_dict] = {'VAR_DICT', {v_dict=ffi.cast('dict_T*', nil)}},
       [nil_value] = {'VAR_SPECIAL', {v_special=eval.kSpecialVarNull}},
+      [none_value] = {'VAR_SPECIAL', {v_special=eval.kSpecialVarNone}},
       [true] = {'VAR_SPECIAL', {v_special=eval.kSpecialVarTrue}},
       [false] = {'VAR_SPECIAL', {v_special=eval.kSpecialVarFalse}},
     }
@@ -528,6 +531,7 @@ return {
   flt_type=flt_type,
 
   nil_value=nil_value,
+  none_value=none_value,
 
   type_key=type_key,
   locks_key=locks_key,

@@ -370,7 +370,8 @@ bool nlua_pop_typval(lua_State *lstate, typval_T *ret_tv)
             cur.tv->vval.v_float = (float_T)table_props.val;
             break;
           }
-          case kObjectTypeNil: {
+          case kObjectTypeNil:
+          case kObjectTypeNone: {
             EMSG(_("E5100: Cannot convert given lua table: table "
                    "should either have a sequence of positive integer keys "
                    "or contain only string keys"));
@@ -385,12 +386,21 @@ nlua_pop_typval_table_processing_end:
         break;
       }
       case LUA_TUSERDATA: {
+
         nlua_pushref(lstate, nlua_nil_ref);
         bool is_nil = lua_rawequal(lstate, -2, -1);
         lua_pop(lstate, 1);
+
+        nlua_pushref(lstate, nlua_none_ref);
+        bool is_none = lua_rawequal(lstate, -2, -1);
+        lua_pop(lstate, 1);
+
         if (is_nil) {
           cur.tv->v_type = VAR_SPECIAL;
           cur.tv->vval.v_special = kSpecialVarNull;
+        } else if (is_none) {
+          cur.tv->v_type = VAR_SPECIAL;
+          cur.tv->vval.v_special = kSpecialVarNone;
         } else {
           EMSG(_("E5101: Cannot convert given lua type"));
           ret = false;
@@ -434,8 +444,19 @@ static bool typval_conv_special = false;
       } \
     } while (0)
 
+// FIXME
+// #define TYPVAL_ENCODE_CONV_NONE_VAL(tv) \
+//     TYPVAL_ENCODE_CONV_NIL(tv)
+// #define TYPVAL_ENCODE_CONV_NONE_VAL(tv) \
+//     do { \
+//       if (typval_conv_special) { \
+//         lua_pushnil(lstate); \
+//       } else { \
+//         nlua_pushref(lstate, nlua_none_ref); \
+//       } \
+//     } while (0)
 #define TYPVAL_ENCODE_CONV_NONE_VAL(tv) \
-    TYPVAL_ENCODE_CONV_NIL(tv)
+    nlua_pushref(lstate, nlua_none_ref)
 
 #define TYPVAL_ENCODE_CONV_BOOL(tv, num) \
     lua_pushboolean(lstate, (bool)(num))
@@ -758,6 +779,14 @@ void nlua_push_Object(lua_State *lstate, const Object obj, bool special)
         lua_pushnil(lstate);
       } else {
         nlua_pushref(lstate, nlua_nil_ref);
+      }
+      break;
+    }
+    case kObjectTypeNone: {
+      if (special) {
+        lua_pushnil(lstate);
+      } else {
+        nlua_pushref(lstate, nlua_none_ref);
       }
       break;
     }
@@ -1171,7 +1200,8 @@ Object nlua_pop_Object(lua_State *const lstate, bool ref, Error *const err)
             *cur.obj = FLOAT_OBJ((Float)table_props.val);
             break;
           }
-          case kObjectTypeNil: {
+          case kObjectTypeNil:
+          case kObjectTypeNone: {
             api_set_error(err, kErrorTypeValidation,
                           "Cannot convert given lua table");
             break;
@@ -1196,8 +1226,15 @@ Object nlua_pop_Object(lua_State *const lstate, bool ref, Error *const err)
         nlua_pushref(lstate, nlua_nil_ref);
         bool is_nil = lua_rawequal(lstate, -2, -1);
         lua_pop(lstate, 1);
+
+        nlua_pushref(lstate, nlua_none_ref);
+        bool is_none = lua_rawequal(lstate, -2, -1);
+        lua_pop(lstate, 1);
+
         if (is_nil) {
           *cur.obj = NIL;
+        } else if (is_none) {
+          *cur.obj = NONE;
         } else {
           api_set_error(err, kErrorTypeValidation,
                         "Cannot convert userdata");
