@@ -6030,7 +6030,7 @@ static int get_function_args(char_u **argp, char_u endchar, garray_T *newargs,
           mustend = true;
         }
       } else if (any_default) {
-        EMSG(_("E989: Non-default argument follows default argument")); // FIXME : error number is ok?
+        EMSG(_("E989: Non-default argument follows default argument"));
         mustend = true;
       }
       if (*p == ',') {
@@ -6160,7 +6160,7 @@ static int get_lambda_tv(char_u **arg, typval_T *rettv, bool evaluate)
     STRCPY(fp->uf_name, name);
     hash_add(&func_hashtab, UF2HIKEY(fp));
     fp->uf_args = newargs;
-    ga_init(&fp->uf_def_args, (int)sizeof(char_u *), 3); // FIXME : is it ok?
+    ga_init(&fp->uf_def_args, (int)sizeof(char_u *), 3);
     fp->uf_lines = newlines;
     if (current_funccal != NULL && eval_lavars) {
       flags |= FC_CLOSURE;
@@ -23233,7 +23233,7 @@ void call_user_func(ufunc_T *fp, int argcount, typval_T *argvars,
   // Set up fields for closure.
   fc->fc_refcount = 0;
   fc->fc_copyID = 0;
-  ga_init(&fc->fc_funcs, sizeof(ufunc_T *), 1); // FIXME : is it ok?
+  ga_init(&fc->fc_funcs, sizeof(ufunc_T *), 1);
   func_ptr_ref(fp);
 
   if (STRNCMP(fp->uf_name, "<lambda>", 8) == 0) {

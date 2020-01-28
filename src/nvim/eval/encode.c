@@ -942,11 +942,6 @@ char *encode_tv2json(typval_T *tv, size_t *len)
 #define TYPVAL_ENCODE_CONV_NONE_VAL(tv) \
     TYPVAL_ENCODE_CONV_NIL(tv)
 
-    // FIXME : NEED DISCUSSION   error vs null
-    /* return conv_error(_("E953: Attempt to convert v:none in %s, %s"), \
-                       mpstack, objname)
-    */
-
 #define TYPVAL_ENCODE_CONV_BOOL(tv, num) \
     do { \
       if (num) { \
