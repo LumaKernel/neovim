@@ -95,8 +95,8 @@ typedef struct dict_watcher {
 typedef enum {
   kSpecialVarFalse,  ///< v:false
   kSpecialVarTrue,   ///< v:true
-  kSpecialVarNone,   ///< v:none
   kSpecialVarNull,   ///< v:null
+  kSpecialVarNone,   ///< v:none
 } SpecialVarValue;
 
 /// Variable lock status for typval_T.v_lock

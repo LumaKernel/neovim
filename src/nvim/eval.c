@@ -639,8 +639,8 @@ void eval_init(void)
 
   set_vim_var_special(VV_FALSE, kSpecialVarFalse);
   set_vim_var_special(VV_TRUE, kSpecialVarTrue);
-  set_vim_var_special(VV_NONE, kSpecialVarNone);
   set_vim_var_special(VV_NULL, kSpecialVarNull);
+  set_vim_var_special(VV_NONE, kSpecialVarNone);
   set_vim_var_special(VV_EXITING, kSpecialVarNull);
 
   set_vim_var_nr(VV_ECHOSPACE,    sc_col - 1);
@@ -6011,13 +6011,13 @@ static int get_function_args(char_u **argp, char_u endchar, garray_T *newargs,
           ga_grow(default_args, 1);
 
           // trim trailing whitespace
-          while (p > expr && VIM_ISWHITE(p[-1]))
+          while (p > expr && ascii_iswhite(p[-1])) {
             p--;
+          }
           c = *p;
           *p = NUL;
           expr = vim_strsave(expr);
-          if (expr == NULL)
-          {
+          if (expr == NULL) {
             *p = c;
             goto err_ret;
           }
@@ -6025,12 +6025,12 @@ static int get_function_args(char_u **argp, char_u endchar, garray_T *newargs,
             [default_args->ga_len] = expr;
           default_args->ga_len++;
           *p = c;
-        }
-        else
+        } else {
           mustend = true;
+        }
       } else if (any_default) {
-        EMSG(_("E989: Non-default argument follows default argument"));
-        mustend = TRUE;
+        EMSG(_("E989: Non-default argument follows default argument")); // FIXME : error number is ok?
+        mustend = true;
       }
       if (*p == ',') {
         p++;
@@ -6159,7 +6159,7 @@ static int get_lambda_tv(char_u **arg, typval_T *rettv, bool evaluate)
     STRCPY(fp->uf_name, name);
     hash_add(&func_hashtab, UF2HIKEY(fp));
     fp->uf_args = newargs;
-    ga_init(&fp->uf_def_args, (int)sizeof(char_u *), 1);
+    ga_init(&fp->uf_def_args, (int)sizeof(char_u *), 3); // FIXME : is it ok?
     fp->uf_lines = newlines;
     if (current_funccal != NULL && eval_lavars) {
       flags |= FC_CLOSURE;
@@ -23300,7 +23300,7 @@ void call_user_func(ufunc_T *fp, int argcount, typval_T *argvars,
              "firstline", (varnumber_T)firstline);
   add_nr_var(&fc->l_avars, (dictitem_T *)&fc->fixvar[fixvar_idx++],
              "lastline", (varnumber_T)lastline);
-  for (int i = 0; i < argcount || i < fp->uf_args.ga_len; ++i) {
+  for (int i = 0; i < argcount || i < fp->uf_args.ga_len; i++) {
     bool addlocal = false;
     typval_T def_rettv;
     bool isdefault = false;
@@ -23311,22 +23311,22 @@ void call_user_func(ufunc_T *fp, int argcount, typval_T *argvars,
       name = FUNCARG(fp, i);
       if (islambda) {
         addlocal = true;
+      }
 
-        // evaluate named argument default expression
-        isdefault = ai + fp->uf_def_args.ga_len >= 0
-          && (i >= argcount || (argvars[i].v_type == VAR_SPECIAL
-                && argvars[i].vval.v_number == VV_NONE));
-        if (isdefault) {
-          char_u	    *default_expr = NULL;
-          def_rettv.v_type = VAR_NUMBER;
-          def_rettv.vval.v_number = -1;
+      // evaluate named argument default expression
+      isdefault = ai + fp->uf_def_args.ga_len >= 0
+        && (i >= argcount || (argvars[i].v_type == VAR_SPECIAL
+              && argvars[i].vval.v_special == kSpecialVarNone));
+      if (isdefault) {
+        char_u *default_expr = NULL;
+        def_rettv.v_type = VAR_NUMBER;
+        def_rettv.vval.v_number = -1;
 
-          default_expr = ((char_u **)(fp->uf_def_args.ga_data))
-            [ai + fp->uf_def_args.ga_len];
-          if (eval1(&default_expr, &def_rettv, true) == FAIL) {
-            default_arg_err = 1;
-            break;
-          }
+        default_expr = ((char_u **)(fp->uf_def_args.ga_data))
+          [ai + fp->uf_def_args.ga_len];
+        if (eval1(&default_expr, &def_rettv, true) == FAIL) {
+          default_arg_err = true;
+          break;
         }
       }
     } else {
@@ -23468,11 +23468,12 @@ void call_user_func(ufunc_T *fp, int argcount, typval_T *argvars,
   did_emsg = FALSE;
 
   // call do_cmdline() to execute the lines
-  if (default_arg_err && (fp->uf_flags & FC_ABORT))
+  if (default_arg_err && (fp->uf_flags & FC_ABORT)) {
     did_emsg = true;
-  else
+  } else {
     do_cmdline(NULL, get_func_line, (void *)fc,
         DOCMD_NOWAIT|DOCMD_VERBOSE|DOCMD_REPEAT);
+  }
 
   --RedrawingDisabled;
 
